@@ -46,9 +46,10 @@ Example:
 vim.g.catalog_display = "overlay"
 ```
 
-## Heighlight
+## Highlight
 
 - `CatalogLensOverlay`: Display the detected version as virtual text overlay on the `catalog:`. It is useful when you want to see the version without moving the cursor.
+- `CatalogLensEol`: Display the detected version as virtual text at the end of the line. It is useful when you want to see catalog name and version together.
 
 ## Credits
 
