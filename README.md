@@ -2,10 +2,10 @@
   <img src="./res/Catalog Lens Icon.png" height="150">
 </p>
 
-<h1 align="center">PNPM Catalog Lens <sup>Neovim</sup></h1>
+<h1 align="center">Catalog Lens <sup>Neovim</sup></h1>
 
 <p align="center">
-  Show versions as diagnostics for <a href="https://pnpm.io/catalogs" target="_blank">PNPM <code>catalog:</code> field.</a><br>
+Show versions inline for <a href="https://pnpm.io/catalogs" target="_blank">pnpm</a> · <a href="https://yarnpkg.com/features/catalogs" target="_blank">yarn</a> <code>catalog:</code> fields.<br>
 </p>
 
 <p align="center" display="flex">
@@ -20,21 +20,21 @@ Using lazy.nvim:
 ```lua
 ---@type LazySpec
 return {
-  'https://github.com/ryoppippi/nvim-pnpm-catalog-lens',
+  'https://github.com/parksb/nvim-catalog-lens',
   ft = { 'json' },
 }
 ```
 
 ## Commands
 
-| Command                  | Description      |
-| ------------------------ | ---------------- |
-| `PnpmCatalogLensEnable`  | Enable the lens  |
-| `PnpmCatalogLensDisable` | Disable the lens |
+| Command              | Description      |
+| -------------------- | ---------------- |
+| `CatalogLensEnable`  | Enable the lens  |
+| `CatalogLensDisable` | Disable the lens |
 
 ## Configuration
 
-You can configure the display option for the detected version using the global variable `g:pnpm_catalog_display`. The available options are:
+You can configure the display option for the detected version using the global variable `g:catalog_display`. The available options are:
 
 - `diagnostics`: Display the detected version as diagnostics (default).
 - `overlay`: Display the detected version as virtual text overlay on the `catalog:`.
@@ -43,17 +43,19 @@ You can configure the display option for the detected version using the global v
 Example:
 
 ```lua
-vim.g.pnpm_catalog_display = "overlay"
+vim.g.catalog_display = "overlay"
 ```
 
 ## Heighlight
 
-- `PnpmCatalogLensOverlay`: Display the detected version as virtual text overlay on the `catalog:`. It is useful when you want to see the version without moving the cursor.
+- `CatalogLensOverlay`: Display the detected version as virtual text overlay on the `catalog:`. It is useful when you want to see the version without moving the cursor.
 
 ## Credits
 
-Logo is from
+- Logo is from
 [`vscode-pnpm-catalog-lens`](https://github.com/antfu/vscode-pnpm-catalog-lens)
+- Forked from
+[`nvim-pnpm-catalog-lens`](https://github.com/ryoppippi/nvim-pnpm-catalog-lens)
 
 ## Inspired by
 

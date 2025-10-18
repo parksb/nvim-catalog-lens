@@ -1,27 +1,27 @@
 local api = vim.api
 
----@class PNPM_CATALOG_LENS_API
-local pnpm_catalog_lens_api = require("pnpm_catalog_lens.api")
+---@class CATALOG_LENS_API
+local catalog_lens_api = require("catalog_lens.api")
 
----@class PNPM_CATALOG_LENS_CONSTANTS
-local constants = require("pnpm_catalog_lens.constants")
+---@class CATALOG_LENS_CONSTANTS
+local constants = require("catalog_lens.constants")
 
 local ns = api.nvim_create_namespace(constants.NAME)
 
----@class PNPM_CATALOG_LENS_INIT
+---@class CATALOG_LENS_INIT
 local M = {}
 
 -- This function is called when the user leaves insert mode or changes the text
 M.set_diagnostics = function()
 	local bufnr = api.nvim_get_current_buf()
 
-	local cc = pnpm_catalog_lens_api.get_catalog_and_catalogs_from_pnpm_workspace_yaml()
+	local cc = catalog_lens_api.get_catalog_and_catalogs_from_workspace_yaml()
 
 	if cc == nil then
 		return
 	end
 
-	local catalog_deps = pnpm_catalog_lens_api.extract_catalog_dependencies_from_package_json(bufnr)
+	local catalog_deps = catalog_lens_api.extract_catalog_dependencies_from_package_json(bufnr)
 
 	if catalog_deps == nil then
 		return
@@ -56,11 +56,11 @@ M.set_diagnostics = function()
 		end
 	end
 
-	if vim.g.pnpm_catalog_display == "diagnostics" then
+	if vim.g.catalog_display == "diagnostics" then
 		vim.diagnostic.set(ns, bufnr, diagnostics)
 	end
 
-	if vim.g.pnpm_catalog_display == "overlay" then
+	if vim.g.catalog_display == "overlay" then
 		for dep, dep_info in pairs(catalog_deps) do
 			---@type string|nil
 			local version = nil
@@ -78,13 +78,13 @@ M.set_diagnostics = function()
 				api.nvim_buf_set_extmark(bufnr, ns, dep_info.line, dep_info.col - 1, {
 					virt_text = { { text, "Comment" } },
 					virt_text_pos = "overlay",
-					hl_group = "PnpmCatalogLensOverlay",
+					hl_group = "CatalogLensOverlay",
 				})
 			end
 		end
 	end
 
-	if vim.g.pnpm_catalog_display == "eol" then
+	if vim.g.catalog_display == "eol" then
 		-- Clear existing extmarks
 		api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
 
@@ -105,7 +105,7 @@ M.set_diagnostics = function()
 				api.nvim_buf_set_extmark(bufnr, ns, dep_info.line, 0, {
 					virt_text = { { text, "Comment" } },
 					virt_text_pos = "eol",
-					hl_group = "PnpmCatalogLensInlay",
+					hl_group = "CatalogLensInlay",
 				})
 			end
 		end

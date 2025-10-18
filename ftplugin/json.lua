@@ -1,10 +1,10 @@
 local api = vim.api
 
----@class PNPM_CATALOG_LENS_CONSTANTS
-local constants = require("pnpm_catalog_lens.constants")
+---@class CATALOG_LENS_CONSTANTS
+local constants = require("catalog_lens.constants")
 
----@class PNPM_CATALOG_LENS_INIT
-local M = require("pnpm_catalog_lens")
+---@class CATALOG_LENS_INIT
+local M = require("catalog_lens")
 
 local bufnr = api.nvim_get_current_buf()
 local filename = api.nvim_buf_get_name(bufnr)
@@ -15,16 +15,16 @@ end
 
 api.nvim_buf_create_user_command(
 	bufnr,
-	"PnpmCatalogLensEnable",
+	"CatalogLensEnable",
 	M.enable,
-	{ nargs = 0, desc = "Enable the pnpm catalog lens" }
+	{ nargs = 0, desc = "Enable the catalog lens" }
 )
 
 api.nvim_buf_create_user_command(
 	bufnr,
-	"PnpmCatalogLensDisable",
+	"CatalogLensDisable",
 	M.disable,
-	{ nargs = 0, desc = "Disable the pnpm catalog lens" }
+	{ nargs = 0, desc = "Disable the catalog lens" }
 )
 
 M.enable()

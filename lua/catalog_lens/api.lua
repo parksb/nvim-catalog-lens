@@ -7,12 +7,12 @@
 local api = vim.api
 local uv = vim.uv
 local fs = vim.fs
-local yaml = require("pnpm_catalog_lens.yaml")
+local yaml = require("catalog_lens.yaml")
 
----@class PNPM_CATALOG_LENS_CONSTANTS
-local constants = require("pnpm_catalog_lens.constants")
+---@class CATALOG_LENS_CONSTANTS
+local constants = require("catalog_lens.constants")
 
----@class PNPM_CATALOG_LENS_API
+---@class CATALOG_LENS_API
 local M = {}
 
 -- read file
@@ -25,7 +25,7 @@ local readFile = function(path)
 	return data
 end
 
-M.find_pnpm_workspace = function()
+M.find_workspace = function()
 	local cwd = vim.fn.getcwd()
 	local root_dir = fs.root(
 		cwd,
@@ -47,10 +47,10 @@ M.find_pnpm_workspace = function()
 	return nil
 end
 
--- parse pnpm-workspace.yaml and return catalogs
+-- parse config file and return catalogs
 ---@return {catalogs: Catalogs|nil, catalog: Catalog|nil} | nil
-M.get_catalog_and_catalogs_from_pnpm_workspace_yaml = function()
-	local workspace_path = M.find_pnpm_workspace()
+M.get_catalog_and_catalogs_from_workspace_yaml = function()
+	local workspace_path = M.find_workspace()
 	if workspace_path == nil then
 		return nil
 	end
