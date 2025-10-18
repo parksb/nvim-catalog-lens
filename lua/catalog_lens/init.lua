@@ -11,6 +11,18 @@ local ns = api.nvim_create_namespace(constants.NAME)
 ---@class CATALOG_LENS_INIT
 local M = {}
 
+---@class CatalogLensConfig
+---@field display? "diagnostics"|"overlay"|"eol"
+
+---@param opts? CatalogLensConfig
+M.setup = function(opts)
+	opts = opts or {}
+
+	if opts.display ~= nil then
+		vim.g.catalog_display = opts.display
+	end
+end
+
 -- This function is called when the user leaves insert mode or changes the text
 M.set_diagnostics = function()
 	local bufnr = api.nvim_get_current_buf()

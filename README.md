@@ -22,6 +22,9 @@ Using lazy.nvim:
 return {
   'https://github.com/parksb/nvim-catalog-lens',
   ft = { 'json' },
+  opts = {
+    display = "diagnostics", -- "diagnostics" | "overlay" | "eol"
+  },
 }
 ```
 
