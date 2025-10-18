@@ -9,7 +9,7 @@ local M = {
 
 -- Global variable for display option
 if vim.g.catalog_display == nil then
-	vim.g.catalog_display = "diagnostics" -- options: "diagnostics" or "overlay"
+	vim.g.catalog_display = "diagnostics" -- options: "diagnostics" or "overlay" or "eol"
 end
 
 return M
