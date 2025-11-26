@@ -88,7 +88,7 @@ M.extract_catalog_dependencies_from_package_json = function(bufnr)
 
 				--get named catalog (ex. "react": "catalog:react18" -> "react18")
 				---@type string | nil
-				local named = line:match("catalog:(%w+)")
+				local named = line:match("catalog:([%w%-_%./%+]+)")
 
 				if catalog_pkg ~= nil then
 					result[catalog_pkg] = { line = i - 1, col = catalog_col, named = named }

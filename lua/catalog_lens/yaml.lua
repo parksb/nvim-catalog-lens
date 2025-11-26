@@ -152,7 +152,7 @@ local tokens = {
 	{ ":", "^:" },
 	{ "pipe", "^(|)(%d*[+%-]?)", sep = "\n" },
 	{ "pipe", "^(>)(%d*[+%-]?)", sep = " " },
-	{ "id", "^([%w/$][%w %-_\\.]*)(:[%s%c])" },
+	{ "id", "^([%w/$@#][%w %-_\\./@%*%^~#]*)(:[%s%c])" },
 	{ "string", "^([^%c]-)( #)[^\n]+", noinline = true }, --String with " #comment"
 	{ "string", "^([^%c]+)", noinline = true },
 	{ "string", "^[^,%]}%c ]+" },
