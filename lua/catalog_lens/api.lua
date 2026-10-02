@@ -7,7 +7,7 @@
 local api = vim.api
 local uv = vim.uv
 local fs = vim.fs
-local yaml = require("catalog_lens.yaml")
+local ts = vim.treesitter
 
 ---@class CATALOG_LENS_CONSTANTS
 local constants = require("catalog_lens.constants")
@@ -47,6 +47,61 @@ M.find_workspace = function()
 	return nil
 end
 
+-- find the first child node of the given type
+---@param node TSNode|nil
+---@param type string
+---@return TSNode|nil
+local findChild = function(node, type)
+	if node == nil then
+		return nil
+	end
+
+	for child in node:iter_children() do
+		if child:type() == type then
+			return child
+		end
+	end
+
+	return nil
+end
+
+-- get the text of a key or a scalar value without quotes
+-- (ex. ["@scope/name"] -> @scope/name, yarn reads a bracketed key as its only element)
+---@param node TSNode
+---@param source string
+---@return string
+local scalarText = function(node, source)
+	local text = ts.get_node_text(node, source)
+	text = text:gsub("^%[%s*(.-)%s*%]$", "%1")
+	return (text:gsub("^(['\"])(.*)%1$", "%2"))
+end
+
+-- convert a yaml mapping of scalars and nested mappings to a table
+---@param mapping TSNode|nil
+---@param source string
+---@return table
+local function mappingToTable(mapping, source)
+	local result = {}
+	if mapping == nil then
+		return result
+	end
+
+	for pair in mapping:iter_children() do
+		if pair:type() == "block_mapping_pair" then
+			local key = scalarText(pair:field("key")[1], source)
+			local value = pair:field("value")[1]
+
+			if value ~= nil and value:type() == "flow_node" then
+				result[key] = scalarText(value, source)
+			else
+				result[key] = mappingToTable(findChild(value, "block_mapping"), source)
+			end
+		end
+	end
+
+	return result
+end
+
 -- parse config file and return catalogs
 ---@return {catalogs: Catalogs|nil, catalog: Catalog|nil} | nil
 M.get_catalog_and_catalogs_from_workspace_yaml = function()
@@ -61,10 +116,17 @@ M.get_catalog_and_catalogs_from_workspace_yaml = function()
 		return nil
 	end
 
-	-- delete blank lines
-	data = data:gsub("^%s+", ""):gsub("%s+$", ""):gsub("\n+", "\n")
+	local ok, available = pcall(ts.language.add, "yaml")
+	local yaml_data
 
-	local yaml_data = yaml.eval(data)
+	if ok and available then
+		local root = ts.get_string_parser(data, "yaml"):parse()[1]:root()
+		local document = findChild(root, "document")
+		yaml_data = mappingToTable(findChild(findChild(document, "block_node"), "block_mapping"), data)
+	else
+		data = data:gsub("^%s+", ""):gsub("%s+$", ""):gsub("\n+", "\n")
+		yaml_data = require("catalog_lens.yaml").eval(data)
+	end
 
 	return {
 		catalog = yaml_data.catalog,
