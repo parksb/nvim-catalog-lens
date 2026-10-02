@@ -162,10 +162,9 @@ exports.tokenize = function(str)
 	local token
 	local row = 0
 	local ignore
-	local indents = 0
-	local lastIndents
+	local indents = { 0 }
+	local inlineIndent
 	local stack = {}
-	local indentAmount = 0
 	local inline = false
 	str = str:gsub("\r\n", "\010")
 
@@ -195,6 +194,16 @@ exports.tokenize = function(str)
 					token.raw = token.raw:sub(1, #token.raw - #token[2][2])
 					-- Trim
 					token[2][1] = string_trim(token[2][1])
+					local previous = stack[#stack]
+					local spaces = 0
+					if previous and previous[1] == "space" then
+						spaces = #previous.raw
+						previous = stack[#stack - 1]
+					end
+					if previous and previous[1] == "-" and previous.row == row then
+						-- a mapping after a list marker starts on the same line
+						inlineIndent = indents[#indents] + #previous.raw + spaces
+					end
 				elseif token[1] == "string" then
 					token[2][1] = string_trim(token[2][1])
 					-- Finding numbers
@@ -209,35 +218,31 @@ exports.tokenize = function(str)
 				elseif token[1] == "indent" then
 					row = row + 1
 					inline = false
-					lastIndents = indents
-					if indentAmount == 0 then
-						indentAmount = #token[2][1]
+					local indent = #token[2][1]
+					local lastIndent = indents[#indents]
+					if inlineIndent and indent > inlineIndent then
+						push(indents, inlineIndent)
+						push(stack, { "indent", { "", input = token[2].input }, raw = "", row = row })
+						lastIndent = inlineIndent
 					end
-					if indentAmount ~= 0 then
-						indents = (#token[2][1] / indentAmount)
-					else
-						indents = 0
-					end
+					inlineIndent = nil
 
-					if indents == lastIndents then
+					if indent == lastIndent then
 						ignore = true
-					elseif indents > lastIndents + 2 then
-						error(
-							"SyntaxError: invalid indentation, got "
-								.. tostring(indents)
-								.. " instead of "
-								.. tostring(lastIndents)
-								.. context(token[2].input)
-						)
-					elseif indents > lastIndents + 1 then
-						push(stack, token)
-					elseif indents < lastIndents then
+					elseif indent > lastIndent then
+						-- each deeper block adds one level regardless of its width
+						push(indents, indent)
+					else
 						local input = token[2].input
 						token = { "dedent", { "", input = "" } }
 						token.input = input
-						while lastIndents > indents + 1 do
-							lastIndents = lastIndents - 1
-							push(stack, token)
+						pop(indents)
+						while indent < indents[#indents] do
+							pop(indents)
+							push(stack, { "dedent", { "", input = "" }, input = input, row = row })
+						end
+						if indent ~= indents[#indents] then
+							error("SyntaxError: invalid indentation, got " .. tostring(indent) .. context(input))
 						end
 					end
 				end -- if token[1] == XXX
